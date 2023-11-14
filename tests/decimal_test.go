@@ -22,9 +22,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"testing"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
+	"github.com/zhangfane/clickhouse-go/v2"
 )
 
 func TestDecimal(t *testing.T) {

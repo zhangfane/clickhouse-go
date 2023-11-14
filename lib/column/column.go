@@ -22,7 +22,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/binary"
+	"github.com/zhangfane/clickhouse-go/v2/lib/binary"
 )
 
 type Type string
@@ -75,12 +75,257 @@ type Interface interface {
 	ScanRow(dest interface{}, row int) error
 	Append(v interface{}) (nulls []uint8, err error)
 	AppendRow(v interface{}) error
+	AppendStringRow(v string) error
 	Decode(decoder *binary.Decoder, rows int) error
 	Encode(*binary.Encoder) error
 	ScanType() reflect.Type
+	Reset()
 }
 
 type CustomSerialization interface {
 	ReadStatePrefix(*binary.Decoder) error
 	WriteStatePrefix(*binary.Encoder) error
+}
+
+func (col *String) AppendStringRow(v string) error {
+	col.data = append(col.data, v)
+	return nil
+}
+
+func (col *DateTime64) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *UUID) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Ring) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Map) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *DateTime) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Decimal) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Point) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Array) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *LowCardinality) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Tuple) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *IPv4) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *IPv6) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *BigInt) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Polygon) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *FixedString) AppendStringRow(v string) (err error) {
+	return fmt.Errorf("unsupport")
+}
+func (col *Bool) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Nullable) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Date) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (jCol *JSONObject) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *SimpleAggregateFunction) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Date32) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *MultiPolygon) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Float32) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Float64) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Int8) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Int16) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Int32) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Int64) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *UInt8) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *UInt16) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *UInt32) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *UInt64) AppendStringRow(v string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Enum16) AppendStringRow(elem string) error {
+	return fmt.Errorf("unsupport")
+}
+func (col *Enum8) AppendStringRow(elem string) error {
+	return fmt.Errorf("unsupport")
+}
+func (Nothing) AppendStringRow(string) error {
+	return fmt.Errorf("unsupport")
+}
+func (Interval) AppendStringRow(string) error {
+	return fmt.Errorf("unsupport")
+}
+
+func (col *String) Reset() {
+	col.data = col.data[:0]
+}
+
+func (col *DateTime64) Reset() {
+	col.values.data = col.values.data[:0]
+}
+func (col *UUID) Reset() {
+	col.data = col.data[:0]
+}
+func (col *Ring) Reset() {
+	col.set.Reset()
+}
+func (col *Map) Reset() {
+	col.keys.Reset()
+	col.values.Reset()
+}
+func (col *DateTime) Reset() {
+	col.values.data = col.values.data[:0]
+}
+func (col *Decimal) Reset() {
+	col.values = col.values[:0]
+}
+func (col *Point) Reset() {
+	col.lon.data = col.lon.data[:0]
+	col.lat.data = col.lat.data[:0]
+}
+func (col *Array) Reset() {
+	col.values.Reset()
+	for i := range col.offsets {
+		col.offsets[i].values.Reset()
+	}
+}
+func (col *LowCardinality) Reset() {
+	col.index.Reset()
+	col.rows = 0
+	col.keys8.data = col.keys8.data[:0]
+	col.keys16.data = col.keys16.data[:0]
+	col.keys32.data = col.keys32.data[:0]
+	col.keys64.data = col.keys64.data[:0]
+	col.append.keys = col.append.keys[:0]
+	col.append.index = make(map[interface{}]int)
+}
+func (col *Tuple) Reset() {
+	col.columns = col.columns[:0]
+}
+func (col *IPv4) Reset() {
+	col.data = col.data[:0]
+}
+func (col *IPv6) Reset() {
+	col.data = col.data[:0]
+}
+func (col *BigInt) Reset() {
+	col.data = col.data[:0]
+}
+func (col *Polygon) Reset() {
+	col.set.Reset()
+}
+func (col *FixedString) Reset() {
+	col.data = col.data[:0]
+}
+func (col *Bool) Reset() {
+	col.values.data = col.values.data[:0]
+}
+func (col *Nullable) Reset() {
+	col.base.Reset()
+	col.nulls.data = col.nulls.data[:0]
+}
+func (col *Date) Reset() {
+	col.values.data = col.values.data[:0]
+}
+func (jCol *JSONObject) Reset() {
+	jCol.columns = jCol.columns[:0]
+}
+func (col *SimpleAggregateFunction) Reset() {
+	col.base.Reset()
+}
+func (col *Date32) Reset() {
+	col.values.data = col.values.data[:0]
+}
+func (col *MultiPolygon) Reset() {
+	col.set.Reset()
+}
+func (col *Float32) Reset() {
+	col.data = col.data[:0]
+}
+func (col *Float64) Reset() {
+	col.data = col.data[:0]
+}
+func (col *Int8) Reset() {
+	col.data = col.data[:0]
+}
+func (col *Int16) Reset() {
+	col.data = col.data[:0]
+}
+func (col *Int32) Reset() {
+	col.data = col.data[:0]
+}
+func (col *Int64) Reset() {
+	col.data = col.data[:0]
+}
+func (col *UInt8) Reset() {
+	col.data = col.data[:0]
+}
+func (col *UInt16) Reset() {
+	col.data = col.data[:0]
+}
+func (col *UInt32) Reset() {
+	col.data = col.data[:0]
+}
+func (col *UInt64) Reset() {
+	col.data = col.data[:0]
+}
+func (col *Enum16) Reset() {
+	col.values.data = col.values.data[:0]
+	col.iv = make(map[string]uint16)
+	col.vi = make(map[uint16]string)
+}
+func (col *Enum8) Reset() {
+	col.values.data = col.values.data[:0]
+	col.iv = make(map[string]uint8)
+	col.vi = make(map[uint8]string)
+}
+func (Nothing) Reset() {
+}
+func (col *Interval) Reset() {
+	col.values.data = col.values.data[:0]
 }

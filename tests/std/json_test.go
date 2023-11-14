@@ -19,8 +19,8 @@ package std
 
 import (
 	"encoding/json"
-	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/stretchr/testify/require"
+	"github.com/zhangfane/clickhouse-go/v2"
 	"testing"
 	"time"
 )

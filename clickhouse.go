@@ -24,10 +24,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2/contributors"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/column"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/proto"
+	"github.com/zhangfane/clickhouse-go/v2/contributors"
+	"github.com/zhangfane/clickhouse-go/v2/lib/column"
+	"github.com/zhangfane/clickhouse-go/v2/lib/driver"
+	"github.com/zhangfane/clickhouse-go/v2/lib/proto"
 )
 
 type Conn = driver.Conn
@@ -145,6 +145,18 @@ func (ch *clickhouse) PrepareBatch(ctx context.Context, query string) (driver.Ba
 		return nil, err
 	}
 	batch, err := conn.prepareBatch(ctx, query, ch.release)
+	if err != nil {
+		return nil, err
+	}
+	return batch, nil
+}
+
+func (ch *clickhouse) PrepareReuseBatch(ctx context.Context, query string, b driver.Batch) (driver.Batch, error) {
+	conn, err := ch.acquire(ctx)
+	if err != nil {
+		return nil, err
+	}
+	batch, err := conn.prepareReuseBatch(ctx, query, ch.release, b.(*batch))
 	if err != nil {
 		return nil, err
 	}

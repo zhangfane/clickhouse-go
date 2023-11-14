@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/stretchr/testify/assert"
+	"github.com/zhangfane/clickhouse-go/v2"
 )
 
 func TestSimpleInt(t *testing.T) {

@@ -21,8 +21,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/binary"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/column"
+	"github.com/zhangfane/clickhouse-go/v2/lib/binary"
+	"github.com/zhangfane/clickhouse-go/v2/lib/column"
 )
 
 type Block struct {
@@ -31,6 +31,11 @@ type Block struct {
 	Columns []column.Interface
 }
 
+func (b *Block) Reset() {
+	for i := range b.Columns {
+		b.Columns[i].Reset()
+	}
+}
 func (b *Block) Rows() int {
 	if len(b.Columns) == 0 {
 		return 0

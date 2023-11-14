@@ -25,9 +25,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/column"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/proto"
+	"github.com/zhangfane/clickhouse-go/v2/lib/column"
+	"github.com/zhangfane/clickhouse-go/v2/lib/driver"
+	"github.com/zhangfane/clickhouse-go/v2/lib/proto"
 )
 
 var splitInsertRe = regexp.MustCompile(`(?i)\sVALUES\s*\(`)
@@ -65,6 +65,43 @@ func (c *connect) prepareBatch(ctx context.Context, query string, release func(*
 	}, nil
 }
 
+// This function is designed to avoid the GC overhead caused by slicegrow and makeslice.
+func (c *connect) prepareReuseBatch(ctx context.Context, query string, release func(*connect, error), b *batch) (*batch, error) {
+	query = splitInsertRe.Split(query, -1)[0]
+	if !strings.HasSuffix(strings.TrimSpace(strings.ToUpper(query)), "VALUES") {
+		query += " VALUES"
+	}
+	options := queryOptions(ctx)
+	if deadline, ok := ctx.Deadline(); ok {
+		c.conn.SetDeadline(deadline)
+		defer c.conn.SetDeadline(time.Time{})
+	}
+	if err := c.sendQuery(query, &options); err != nil {
+		release(c, err)
+		return nil, err
+	}
+	var (
+		onProcess  = options.onProcess()
+		block, err = c.firstBlock(ctx, onProcess)
+	)
+	if err != nil {
+		release(c, err)
+		return nil, err
+	}
+
+	// Reset the input 'batch b' so that the memory can be reused and return it
+	b.block.Reset()
+	b.sent = false
+	b.ctx = ctx
+	b.conn = c
+	b.block.Packet = block.Packet
+	b.release = func(err error) {
+		release(c, err)
+	}
+	b.onProcess = onProcess
+	return b, nil
+}
+
 type batch struct {
 	err       error
 	ctx       context.Context
@@ -73,6 +110,11 @@ type batch struct {
 	block     *proto.Block
 	release   func(error)
 	onProcess *onProcess
+}
+
+func (b *batch) Reset() {
+	b.block.Reset()
+	b.sent = false
 }
 
 func (b *batch) Abort() error {

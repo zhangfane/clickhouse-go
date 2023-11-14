@@ -19,8 +19,9 @@ package column
 
 import (
 	"reflect"
+	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/binary"
+	"github.com/zhangfane/clickhouse-go/v2/lib/binary"
 )
 
 type Nullable struct {
@@ -82,6 +83,32 @@ func (col *Nullable) Row(i int, ptr bool) interface{} {
 func (col *Nullable) ScanRow(dest interface{}, row int) error {
 	if col.enable {
 		if col.nulls.data[row] == 1 {
+			switch v := dest.(type) {
+			case **uint64:
+				*v = nil
+			case **int64:
+				*v = nil
+			case **uint32:
+				*v = nil
+			case **int32:
+				*v = nil
+			case **uint16:
+				*v = nil
+			case **int16:
+				*v = nil
+			case **uint8:
+				*v = nil
+			case **int8:
+				*v = nil
+			case **string:
+				*v = nil
+			case **float32:
+				*v = nil
+			case **float64:
+				*v = nil
+			case **time.Time:
+				*v = nil
+			}
 			return nil
 		}
 	}

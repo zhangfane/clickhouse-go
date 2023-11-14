@@ -21,7 +21,7 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/proto"
+	"github.com/zhangfane/clickhouse-go/v2/lib/proto"
 )
 
 type ServerVersion = proto.ServerHandshake
@@ -47,6 +47,7 @@ type (
 		Query(ctx context.Context, query string, args ...interface{}) (Rows, error)
 		QueryRow(ctx context.Context, query string, args ...interface{}) Row
 		PrepareBatch(ctx context.Context, query string) (Batch, error)
+		PrepareReuseBatch(ctx context.Context, query string, batch Batch) (Batch, error)
 		Exec(ctx context.Context, query string, args ...interface{}) error
 		AsyncInsert(ctx context.Context, query string, wait bool) error
 		Ping(context.Context) error
@@ -74,6 +75,7 @@ type (
 		AppendStruct(v interface{}) error
 		Column(int) BatchColumn
 		Send() error
+		Reset()
 	}
 	BatchColumn interface {
 		Append(interface{}) error

@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/binary"
+	"github.com/zhangfane/clickhouse-go/v2/lib/binary"
 )
 
 type Exception struct {

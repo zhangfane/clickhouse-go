@@ -23,8 +23,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/google/uuid"
+	"github.com/zhangfane/clickhouse-go/v2"
 )
 
 func example() error {

@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/binary"
 	"github.com/google/uuid"
+	"github.com/zhangfane/clickhouse-go/v2/lib/binary"
 )
 
 const uuidSize = 16

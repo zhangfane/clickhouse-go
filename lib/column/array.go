@@ -22,7 +22,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/binary"
+	"github.com/zhangfane/clickhouse-go/v2/lib/binary"
 )
 
 type offset struct {
@@ -138,6 +138,36 @@ func (col *Array) Append(v interface{}) (nulls []uint8, err error) {
 }
 
 func (col *Array) AppendRow(v interface{}) error {
+	// avoid reflect to improve performance, but not support col.depth>1
+	if col.depth == 1 {
+		switch tv := v.(type) {
+		case []string:
+			offset := uint64(len(tv))
+			if ln := len(col.offsets[0].values.data); ln != 0 {
+				offset += col.offsets[0].values.data[ln-1]
+			}
+			col.offsets[0].values.data = append(col.offsets[0].values.data, offset)
+			for i := 0; i < len(tv); i++ {
+				if err := col.values.AppendStringRow(tv[i]); err != nil {
+					return err
+				}
+			}
+			return nil
+		case []float64:
+			offset := uint64(len(tv))
+			if ln := len(col.offsets[0].values.data); ln != 0 {
+				offset += col.offsets[0].values.data[ln-1]
+			}
+			col.offsets[0].values.data = append(col.offsets[0].values.data, offset)
+			for i := 0; i < len(tv); i++ {
+				if err := col.values.AppendRow(tv[i]); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}
+
 	var elem reflect.Value
 	switch v := v.(type) {
 	case reflect.Value:

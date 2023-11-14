@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/binary"
 	"github.com/paulmach/orb"
+	"github.com/zhangfane/clickhouse-go/v2/lib/binary"
 )
 
 type Ring struct {
